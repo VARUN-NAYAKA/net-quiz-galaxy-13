@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Question } from '@/lib/quizData';
@@ -9,15 +9,22 @@ interface QuizQuestionProps {
   onAnswer: (selectedIndex: number) => void;
   timeLeft?: number;
   showAnswer?: boolean;
+  questionIndex?: number;
 }
 
 const QuizQuestion: React.FC<QuizQuestionProps> = ({
   question,
   onAnswer,
   timeLeft,
-  showAnswer = false
+  showAnswer = false,
+  questionIndex
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  
+  // Reset selectedAnswer when question changes
+  useEffect(() => {
+    setSelectedAnswer(null);
+  }, [question.id, questionIndex]);
   
   const handleSelectAnswer = (index: number) => {
     if (selectedAnswer !== null || showAnswer) return;

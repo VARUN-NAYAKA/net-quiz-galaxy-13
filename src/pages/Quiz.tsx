@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -120,6 +119,7 @@ const Quiz = () => {
               onAnswer={handleAnswer}
               timeLeft={timeLeft}
               showAnswer={showAnswer}
+              questionIndex={currentQuestionIndex}
             />
             
             {showAnswer && (
