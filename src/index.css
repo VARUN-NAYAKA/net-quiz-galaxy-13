@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -13,16 +14,16 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 250 47.4% 55%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
+    --secondary: 240 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
+    --accent: 240 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
@@ -30,7 +31,7 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 250 47.4% 55%;
 
     --radius: 0.5rem;
 
@@ -61,7 +62,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
+    --primary: 250 47.4% 55%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -97,5 +98,35 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .quiz-gradient-bg {
+    @apply bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-700;
+  }
+  
+  .quiz-card {
+    @apply bg-white rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl;
+  }
+  
+  .quiz-button {
+    @apply px-6 py-3 rounded-lg font-medium transition-all duration-300;
+  }
+
+  .answer-button {
+    @apply w-full p-4 text-left rounded-lg mb-4 border-2 transition-all duration-200 hover:border-primary;
+  }
+  
+  .answer-button.selected {
+    @apply border-primary bg-primary/10;
+  }
+  
+  .answer-button.correct {
+    @apply border-green-500 bg-green-100 text-green-900;
+  }
+  
+  .answer-button.incorrect {
+    @apply border-red-500 bg-red-100 text-red-900;
   }
 }
