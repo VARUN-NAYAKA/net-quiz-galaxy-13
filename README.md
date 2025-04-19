@@ -35,5 +35,4 @@ Install dependencies<br>
 npm install<br.
 
 Start the development server<br>
-npm run dev<br>
-</p>
+npm run dev<br></p>
