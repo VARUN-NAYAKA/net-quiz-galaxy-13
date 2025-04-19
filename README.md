@@ -1,4 +1,4 @@
-<p>#Multiplayer Networking Quiz Game</p>
+<p> # Multiplayer Networking Quiz Game</p>
 
 <p>This type of application draws inspiration from popular quiz platforms like Kahoot and Quizlet but with a focus on networking concepts.</p>
 
