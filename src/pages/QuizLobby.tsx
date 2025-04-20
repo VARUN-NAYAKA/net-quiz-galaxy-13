@@ -23,8 +23,8 @@ const QuizLobby = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-700 p-4">
-      <div className="w-full max-w-6xl flex flex-col md:flex-row gap-4 items-start justify-center">
-        <Card className="w-full md:w-1/2 max-w-md">
+      <div className="w-full max-w-md space-y-4">
+        <Card>
           <CardHeader>
             <CardTitle className="text-2xl text-center">Quiz Lobby</CardTitle>
             <CardDescription className="text-center">
@@ -49,9 +49,7 @@ const QuizLobby = () => {
           </CardContent>
         </Card>
 
-        <div className="w-full md:w-1/2 max-w-md">
-          <ScoreBoard scores={allScores} />
-        </div>
+        <ScoreBoard scores={allScores} />
       </div>
       
       <Button 
