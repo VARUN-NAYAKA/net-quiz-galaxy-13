@@ -23,8 +23,15 @@ const Quiz = () => {
   const [answers, setAnswers] = useState<number[]>([]);
   
   const playerName = sessionStorage.getItem('playerName') || 'Player';
-  const totalQuestions = networkingQuizQuestions.length;
-  const currentQuestion = networkingQuizQuestions[currentQuestionIndex];
+  
+  // Select 5 random questions when the component mounts
+  const [questions] = useState(() => {
+    const shuffled = [...networkingQuizQuestions].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 5);
+  });
+
+  const totalQuestions = questions.length;
+  const currentQuestion = questions[currentQuestionIndex];
   
   useEffect(() => {
     if (!roomCode) {
