@@ -33,8 +33,13 @@ const CreateRoomForm = () => {
     // Generate room code
     const roomCode = generateRoomCode();
     
-    // In a real app, we'd create the room in a database/backend here
-    console.log(`Creating ${quizType} quiz room: ${roomCode} as host: ${nickname}`);
+    // Store room code in sessionStorage
+    const existingRooms = JSON.parse(sessionStorage.getItem('quizRooms') || '[]');
+    existingRooms.push(roomCode);
+    sessionStorage.setItem('quizRooms', JSON.stringify(existingRooms));
+    
+    // Initialize scores array for this room
+    sessionStorage.setItem(`scores_${roomCode}`, JSON.stringify([{ name: nickname, score: 0 }]));
     
     // Store creator info in session storage
     sessionStorage.setItem('playerName', nickname);

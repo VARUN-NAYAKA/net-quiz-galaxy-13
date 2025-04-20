@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { networkingQuizQuestions } from '@/lib/quizData';
 import QuizQuestion from '@/components/QuizQuestion';
 import { useToast } from '@/components/ui/use-toast';
+import ScoreBoard from '@/components/ScoreBoard';
 
 const Quiz = () => {
   const navigate = useNavigate();
@@ -34,8 +35,30 @@ const Quiz = () => {
       });
       navigate('/lobby');
     }
-  }, [roomCode, navigate, toast]);
-  
+
+    const roomScores = JSON.parse(sessionStorage.getItem(`scores_${roomCode}`) || '[]');
+    if (!roomScores.some((score: any) => score.name === playerName)) {
+      roomScores.push({ name: playerName, score: 0 });
+      sessionStorage.setItem(`scores_${roomCode}`, JSON.stringify(roomScores));
+    }
+  }, [roomCode, navigate, toast, playerName]);
+
+  useEffect(() => {
+    if (roomCode && playerName) {
+      const roomScores = JSON.parse(sessionStorage.getItem(`scores_${roomCode}`) || '[]');
+      const updatedScores = roomScores.map((playerScore: any) => 
+        playerScore.name === playerName 
+          ? { ...playerScore, score } 
+          : playerScore
+      );
+      sessionStorage.setItem(`scores_${roomCode}`, JSON.stringify(updatedScores));
+    }
+  }, [score, roomCode, playerName]);
+
+  const getRoomScores = () => {
+    return JSON.parse(sessionStorage.getItem(`scores_${roomCode}`) || '[]');
+  };
+
   useEffect(() => {
     if (quizEnded) return;
     
@@ -135,6 +158,8 @@ const Quiz = () => {
                 </Button>
               </div>
             )}
+            
+            <ScoreBoard scores={getRoomScores()} />
           </div>
         ) : (
           <Card className="quiz-card">
