@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -7,6 +8,9 @@ import QuizQuestion from '@/components/QuizQuestion';
 import AnimatedTimer from '@/components/AnimatedTimer';
 import { useToast } from '@/components/ui/use-toast';
 import ScoreBoard from '@/components/ScoreBoard';
+
+const QUESTION_TIME = 20;
+const INCORRECT_ANSWER_DELAY = 10;
 
 const Quiz = () => {
   const navigate = useNavigate();
@@ -20,9 +24,10 @@ const Quiz = () => {
   const [score, setScore] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [quizEnded, setQuizEnded] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(15);
+  const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
   const [answers, setAnswers] = useState<number[]>([]);
-  
+  const autoAdvanceTimer = useRef<NodeJS.Timeout | null>(null);
+
   const playerName = sessionStorage.getItem('playerName') || 'Player';
   
   // Select 5 random questions when the component mounts
@@ -68,27 +73,62 @@ const Quiz = () => {
   };
 
   useEffect(() => {
-    if (quizEnded) return;
-    
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          setShowAnswer(true);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    
-    return () => clearInterval(timer);
+    // Clear any auto advance when moving to a new question
+    if (autoAdvanceTimer.current) {
+      clearTimeout(autoAdvanceTimer.current);
+      autoAdvanceTimer.current = null;
+    }
+    // Reset timer, except if quiz ended
+    if (!quizEnded) setTimeLeft(QUESTION_TIME);
   }, [currentQuestionIndex, quizEnded]);
-  
+
+  useEffect(() => {
+    if (quizEnded) return;
+
+    if (!showAnswer) {
+      // Timer for answering the question
+      if (timeLeft > 0) {
+        const timer = setInterval(() => {
+          setTimeLeft((prev) => {
+            if (prev <= 1) {
+              clearInterval(timer);
+              setShowAnswer(true);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+        return () => clearInterval(timer);
+      } else {
+        // Time ran out, show answer
+        setShowAnswer(true);
+      }
+    } else if (showAnswer && timeLeft === 0 && answers[currentQuestionIndex] !== undefined) {
+      // If already answered, and answer is showing, don't start another timer here
+    } else if (showAnswer && timeLeft === 0 && answers[currentQuestionIndex] === undefined) {
+      // Show answer because of timeout, then auto advance after 10 seconds
+      autoAdvanceTimer.current = setTimeout(() => {
+        handleNextQuestion();
+      }, INCORRECT_ANSWER_DELAY * 1000);
+      setTimeLeft(INCORRECT_ANSWER_DELAY);
+      const delayTimer = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(delayTimer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(delayTimer);
+    }
+  }, [showAnswer, timeLeft, quizEnded, answers, currentQuestionIndex]);
+
   const handleAnswer = (selectedIndex: number) => {
     const newAnswers = [...answers];
     newAnswers[currentQuestionIndex] = selectedIndex;
     setAnswers(newAnswers);
-    
+
     if (selectedIndex === currentQuestion.correctAnswer) {
       setScore(score + 1);
       toast({
@@ -96,34 +136,61 @@ const Quiz = () => {
         description: "You got it right!",
         variant: "default",
       });
+      setShowAnswer(true);
+      setTimeLeft(0);
+      // Immediately move to next question after 1 second pause for feedback
+      autoAdvanceTimer.current = setTimeout(() => {
+        handleNextQuestion();
+      }, 1000);
     } else {
       toast({
         title: "Incorrect",
         description: "That's not the right answer.",
         variant: "destructive",
       });
+      setShowAnswer(true);
+      setTimeLeft(INCORRECT_ANSWER_DELAY);
+      // Start timer to move to next question after 10 seconds
+      autoAdvanceTimer.current = setTimeout(() => {
+        handleNextQuestion();
+      }, INCORRECT_ANSWER_DELAY * 1000);
+      // Start 10s countdown for UI
+      const delayTimer = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(delayTimer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
     }
-    
-    setShowAnswer(true);
-    setTimeLeft(0);
   };
   
   const handleNextQuestion = () => {
+    if (autoAdvanceTimer.current) {
+      clearTimeout(autoAdvanceTimer.current);
+      autoAdvanceTimer.current = null;
+    }
     if (currentQuestionIndex < totalQuestions - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setShowAnswer(false);
-      setTimeLeft(15);
+      setTimeLeft(QUESTION_TIME);
     } else {
       setQuizEnded(true);
     }
   };
   
   const handleRestartQuiz = () => {
+    if (autoAdvanceTimer.current) {
+      clearTimeout(autoAdvanceTimer.current);
+      autoAdvanceTimer.current = null;
+    }
     setCurrentQuestionIndex(0);
     setScore(0);
     setShowAnswer(false);
     setQuizEnded(false);
-    setTimeLeft(15);
+    setTimeLeft(QUESTION_TIME);
     setAnswers([]);
   };
   
@@ -150,7 +217,7 @@ const Quiz = () => {
                 <CardTitle className="text-xl">
                   {currentQuestion.question}
                 </CardTitle>
-                <AnimatedTimer timeLeft={timeLeft} totalTime={15} />
+                <AnimatedTimer timeLeft={timeLeft} totalTime={QUESTION_TIME} />
               </CardHeader>
               <CardContent className="space-y-2">
                 <QuizQuestion 
@@ -168,6 +235,7 @@ const Quiz = () => {
                 <Button 
                   onClick={handleNextQuestion}
                   className="bg-primary hover:bg-primary/90"
+                  disabled={autoAdvanceTimer.current !== null}
                 >
                   {currentQuestionIndex < totalQuestions - 1 
                     ? "Next Question" 
@@ -226,3 +294,4 @@ const Quiz = () => {
 };
 
 export default Quiz;
+
