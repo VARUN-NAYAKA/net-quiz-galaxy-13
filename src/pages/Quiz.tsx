@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { networkingQuizQuestions } from '@/lib/quizData';
 import QuizQuestion from '@/components/QuizQuestion';
+import AnimatedTimer from '@/components/AnimatedTimer';
 import { useToast } from '@/components/ui/use-toast';
 import ScoreBoard from '@/components/ScoreBoard';
 
@@ -144,13 +145,23 @@ const Quiz = () => {
         
         {!quizEnded ? (
           <div className="space-y-4">
-            <QuizQuestion 
-              question={currentQuestion}
-              onAnswer={handleAnswer}
-              timeLeft={timeLeft}
-              showAnswer={showAnswer}
-              questionIndex={currentQuestionIndex}
-            />
+            <Card className="w-full max-w-2xl quiz-card">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="text-xl">
+                  {currentQuestion.question}
+                </CardTitle>
+                <AnimatedTimer timeLeft={timeLeft} totalTime={15} />
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <QuizQuestion 
+                  question={currentQuestion}
+                  onAnswer={handleAnswer}
+                  timeLeft={undefined}
+                  showAnswer={showAnswer}
+                  questionIndex={currentQuestionIndex}
+                />
+              </CardContent>
+            </Card>
             
             {showAnswer && (
               <div className="flex justify-center mt-4">

@@ -58,6 +58,13 @@ const QuizLobby = () => {
           </CardContent>
         </Card>
 
+        <Button
+          className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-700 text-white mt-1"
+          onClick={() => { window.location.href = "/leaderboard"; }}
+        >
+          View Leaderboard
+        </Button>
+
         <ScoreBoard scores={allScores} />
 
         <Card className="w-full mt-4">
