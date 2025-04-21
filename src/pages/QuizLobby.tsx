@@ -21,6 +21,15 @@ const QuizLobby = () => {
     return [...acc, ...roomScores];
   }, []);
 
+  // Build a list of rooms with creator name (the first entry in scores_{room})
+  const availableRooms = allRooms.map((roomCode: string) => {
+    const scores = JSON.parse(sessionStorage.getItem(`scores_${roomCode}`) || '[]');
+    return {
+      roomCode,
+      creator: scores.length > 0 ? scores[0].name : "(unknown)"
+    };
+  });
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-700 p-4">
       <div className="w-full max-w-md space-y-4">
@@ -50,6 +59,33 @@ const QuizLobby = () => {
         </Card>
 
         <ScoreBoard scores={allScores} />
+
+        <Card className="w-full mt-4">
+          <CardHeader>
+            <CardTitle className="text-lg">Available Rooms</CardTitle>
+            <CardDescription>
+              Browse open quiz rooms and see who is the creator.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {availableRooms.length === 0 ? (
+              <div className="text-center text-muted-foreground py-2">No rooms available yet.</div>
+            ) : (
+              <ul className="space-y-2">
+                {availableRooms.map(room => (
+                  <li key={room.roomCode} className="flex justify-between items-center px-3 py-2 rounded bg-muted text-muted-foreground">
+                    <span>
+                      <span className="font-semibold text-foreground">{room.roomCode}</span>
+                      <span className="mx-2">|</span>
+                      <span className="italic">Created by: </span>
+                      <span className="font-medium">{room.creator}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
       </div>
       
       <Button 
